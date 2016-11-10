@@ -53,21 +53,19 @@ $(document).ready(function() {
         // socket.emit('onlineCount', count);
     };
 
+
     var typing = function(user) {
 
-        console.log('YEY');
-        console.log(user + ' is typing');
+              clearTimeout();
+
+              $('#isTyping p').text(user + '..is typing');
+
+            setTimeout(function(){$('#isTyping p').text('');
+          },2000);
+
 
         // how to reset the set TIme out if it begins
-        //How to stop the previous function every time this function runs??
-
-        $('#isTyping p').text(user + ' is typing');
-
-        setTimeout(function() {
-
-            $('#isTyping p').text('nothing');
-
-        }, 5000);
+        //How to stop the previous function every time this function runs?
     };
 
 
@@ -90,14 +88,16 @@ $(document).ready(function() {
     };
 
 
-
     input.on('keydown', function() {
 
         console.log(input.val());
+
         if (input.val.length === 0) {
-            return;
+          input.val('');
         }
+
         socket.emit('isTyping');
+
     });
 
     $('#sendButton').click(function(){
@@ -105,6 +105,7 @@ $(document).ready(function() {
           socket.emit('message', message);
           input.val('');
     });
+
     input.on('keydown', function(event) {
         if (event.keyCode != 13) {
             return;
@@ -129,7 +130,7 @@ $(document).ready(function() {
 
     socket.on('typing', typing);
 
-  
+
 
 
 });

@@ -17,15 +17,10 @@ var data = {
 
 io.on('connection', function(socket) {
 
-
-
     if (!userArray[socket.id]) {
         socket.emit('you are offline');
     }
 
-
-
-    socket.on('isTyping', function() {});
 
     socket.on('MessengerSetUp', function(nickname) {
 
@@ -35,8 +30,6 @@ io.on('connection', function(socket) {
         };
 
         socket.broadcast.emit('print online users', userArray);
-        
-
 
 
         var isOnline = userArray[socket.id].nickname + ' is online';
@@ -47,57 +40,44 @@ io.on('connection', function(socket) {
         socket.emit('onlineCount', Object.keys(userArray).length);
 
         socket.emit('messengerOn');
-        // console.log(userArray);
 
-        console.log(Object.keys(userArray).length);
+        socket.on('isTyping', function() {
+              socket.broadcast.emit( 'typing', userArray[socket.id].nickname);
+        });
+
 
     });
 
-    console.log(connectionIsOn);
 
 
     socket.on('disconnect', function() {
 
+        if (!userArray[socket.id]) {
+            socket.emit('you are offline');
+            return;
+        }
+
         socket.broadcast.emit('disconnection', userArray[socket.id]);
 
-
         socket.on('deleteUser', function(user) {
-            console.log('deleted!' + user);
-            // socket.broadcast.emit('onlineCount', Object.keys(userArray).length);
+
+
         });
 
         delete userArray[socket.id];
         socket.broadcast.emit('onlineCount', Object.keys(userArray).length);
 
-        console.log(Object.keys(userArray).length);
-        console.log(' client disconneted ');
-
-
-
-        // access nickname variable somehow , then broadcast
-
         socket.emit('closeMessenger');
 
     });
 
-    // socket.on('disconnect', function() {
-    //     console.log( 'SOMEONE LEFT THE ROOOOOOM');
-    // });
-
-    console.log('Client connected');
-
 });
+
+
 
 io.on('connection', function(socket) {
 
-    console.log('Client connected');
-
-    // socket.broadcast.emit('connection', data.text);
-    socket.emit('connection', data.online);
-
     socket.on('message', function(message) {
-
-        console.log('Received message:', message + 'from ' + userArray[socket.id].nickname);
 
         var userMessage = userArray[socket.id].nickname + ': ' + message;
 
@@ -106,7 +86,6 @@ io.on('connection', function(socket) {
 
     });
 });
-
 
 
 server.listen(process.env.PORT || 8080);

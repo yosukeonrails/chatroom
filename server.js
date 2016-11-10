@@ -82,8 +82,12 @@ io.on('connection', function(socket) {
 
     socket.on('message', function(message) {
 
-        console.log('Received message:', message);
-        socket.broadcast.emit('message', message);
+
+        console.log('Received message:', message + 'from '+ userArray[socket.id].nickname);
+
+         var userMessage= userArray[socket.id].nickname +': '+ message;
+
+        socket.broadcast.emit('message', userMessage);
 
     });
 });

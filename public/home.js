@@ -13,30 +13,40 @@ $(document).ready(function() {
         $('.messenger').hide();
     };
 
-  var connectMessenger= function() {
-
+    var connectMessenger = function() {
         var nickname = $('input').val();
         socket.emit('MessengerSetUp', nickname);
 
     };
 
-socket.on('messengerOn', function(){
 
-  $('.signin').hide();
-  $('.messenger').show();
 
-});
+    socket.on('messengerOn', function() {
+
+        $('.signin').hide();
+        $('.messenger').show();
+
+    });
 
 
     connectButton.click(connectMessenger);
 
+    input.on('keydown', function(event) {
+
+        if (event.keyCode != 13) {
+            return;
+        }
+          connectMessenger();
+
+    });
+
     var updateCount = function(count) {
-
-        if (count==1){
-            $('#updateCount p').text( 'you are the only one online');
-        } else {   $('#updateCount p').text( count + ' online'); }
+        if (count == 1) {
+            $('#updateCount p').text('you are the only one online');
+        } else {
+            $('#updateCount p').text(count + ' online');
+        }
         // here , make one h1 vriable = to 'there are currently 'count+' people online '
-
         // socket.emit('onlineCount', count);
     };
 
@@ -48,18 +58,25 @@ socket.on('messengerOn', function(){
         // how to reset the set TIme out if it begins
         //How to stop the previous function every time this function runs??
 
+
+
         $('#isTyping p').text(user + ' is typing');
 
         setTimeout(function() {
-            $('#isTyping p').text('nothing');
-        }, 5000);
 
+            $('#isTyping p').text('nothing');
+
+        }, 5000);
     };
+
+
 
     var addMessage = function(message) {
-        messages.append('<div>' + message + '</div>');
-    };
 
+        messages.append('<p>' + message + '</p>');
+
+        socket.emit('setNickname',message);
+    };
 
 
     input.on('keydown', function() {
@@ -69,8 +86,8 @@ socket.on('messengerOn', function(){
             return;
         }
         socket.emit('isTyping');
-
     });
+
 
     input.on('keydown', function(event) {
         if (event.keyCode != 13) {
@@ -78,18 +95,24 @@ socket.on('messengerOn', function(){
         }
 
         var message = input.val();
+
         socket.emit('message', message);
 
-        addMessage(message);
+
 
         input.val('');
+
     });
 
+
     socket.on('closeConnection', disconnectMessenger);
+
     socket.on('message', addMessage);
+
     socket.on('onlineCount', updateCount);
 
     socket.on('setNickname', addMessage);
+
     socket.on('typing', typing);
 
 

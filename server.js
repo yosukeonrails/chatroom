@@ -17,9 +17,13 @@ var data = {
 
 io.on('connection', function(socket) {
 
-  if(!userArray[socket.id]){
-      socket.emit('you are offline');
-  }
+
+
+    if (!userArray[socket.id]) {
+        socket.emit('you are offline');
+    }
+
+
 
     socket.on('isTyping', function() {});
 
@@ -30,9 +34,12 @@ io.on('connection', function(socket) {
             nickname: nickname
         };
 
+        socket.broadcast.emit('print online users', userArray);
+        
+
+
 
         var isOnline = userArray[socket.id].nickname + ' is online';
-
 
         socket.broadcast.emit('setNickname', isOnline);
 
@@ -42,17 +49,25 @@ io.on('connection', function(socket) {
         socket.emit('messengerOn');
         // console.log(userArray);
 
-          console.log(Object.keys(userArray).length);
+        console.log(Object.keys(userArray).length);
 
     });
 
     console.log(connectionIsOn);
 
+
     socket.on('disconnect', function() {
 
-        delete userArray[socket.id];
+        socket.broadcast.emit('disconnection', userArray[socket.id]);
 
-          socket.broadcast.emit('onlineCount', Object.keys(userArray).length);
+
+        socket.on('deleteUser', function(user) {
+            console.log('deleted!' + user);
+            // socket.broadcast.emit('onlineCount', Object.keys(userArray).length);
+        });
+
+        delete userArray[socket.id];
+        socket.broadcast.emit('onlineCount', Object.keys(userArray).length);
 
         console.log(Object.keys(userArray).length);
         console.log(' client disconneted ');
@@ -82,12 +97,12 @@ io.on('connection', function(socket) {
 
     socket.on('message', function(message) {
 
+        console.log('Received message:', message + 'from ' + userArray[socket.id].nickname);
 
-        console.log('Received message:', message + 'from '+ userArray[socket.id].nickname);
+        var userMessage = userArray[socket.id].nickname + ': ' + message;
 
-         var userMessage= userArray[socket.id].nickname +': '+ message;
-
-        socket.broadcast.emit('message', userMessage);
+        socket.broadcast.emit('message', userMessage); // sending to others but itself
+        socket.emit('message', userMessage); // sending it to itself
 
     });
 });

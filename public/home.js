@@ -4,9 +4,8 @@ $(document).ready(function() {
     var input = $('#typeMessage');
     var messages = $('#messages');
     var disconnectButton = $('#disconnectButton');
-    var user = 'dude';
-
     var connectButton = $('#connectButton');
+
 
     var disconnectMessenger = function() {
         $('.signin').show();
@@ -19,7 +18,12 @@ $(document).ready(function() {
 
     };
 
+    var listUser= function(userOnline){
 
+            $('ul').append('<li style="color:green">'+userOnline+'</li>');
+            console.log(userOnline);
+
+    };
 
     socket.on('messengerOn', function() {
 
@@ -37,7 +41,6 @@ $(document).ready(function() {
             return;
         }
           connectMessenger();
-
     });
 
     var updateCount = function(count) {
@@ -58,8 +61,6 @@ $(document).ready(function() {
         // how to reset the set TIme out if it begins
         //How to stop the previous function every time this function runs??
 
-
-
         $('#isTyping p').text(user + ' is typing');
 
         setTimeout(function() {
@@ -70,13 +71,24 @@ $(document).ready(function() {
     };
 
 
-
     var addMessage = function(message) {
-
         messages.append('<p>' + message + '</p>');
 
-        socket.emit('setNickname',message);
     };
+
+    var disconnectUser= function(user){
+
+          messages.append('<p>' + user.nickname + ' disconnected! </p>');
+
+          if (user){
+
+              console.log('there is user!');
+              socket.emit('deleteUser', user);
+
+          }
+
+    };
+
 
 
     input.on('keydown', function() {
@@ -88,18 +100,18 @@ $(document).ready(function() {
         socket.emit('isTyping');
     });
 
-
+    $('#sendButton').click(function(){
+        var message = input.val();
+          socket.emit('message', message);
+          input.val('');
+    });
     input.on('keydown', function(event) {
         if (event.keyCode != 13) {
             return;
         }
 
         var message = input.val();
-
         socket.emit('message', message);
-
-
-
         input.val('');
 
     });
@@ -109,11 +121,15 @@ $(document).ready(function() {
 
     socket.on('message', addMessage);
 
+     socket.on('disconnection', disconnectUser);
+
     socket.on('onlineCount', updateCount);
 
     socket.on('setNickname', addMessage);
 
     socket.on('typing', typing);
+
+  
 
 
 });
